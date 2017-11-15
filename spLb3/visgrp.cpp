@@ -1,12 +1,14 @@
 #include "stdafx.h"
 #include "visgrp.h"
 #include "token.h"
+#include <stdlib.h>
 extern char *oprtrC[], *oprtrP[], *oprtrV[],
 *cprC[], *cprP[], *cprV[], **oprtr, **cpr,
 modeP,//=1, // тип роздільника операторних дужок для Паскаля
 modeC,//=0, // тип роздільника операторних дужок для С
 modeL;//=modeC; 
 char out[1024] = " ";
+int size = 0;
 char	mode = 0;  // mode=0 режим генерації роздільника
 				   // mode=1 режим генерації слова
 				   // mode=2 режим генерації одного вкладеного оператора в С
@@ -112,17 +114,51 @@ gpr[] = { 0, 0x4f, 0x4f, 0x4f, 6,0x12,6,0x12,
 0x4e,0x4e,0x15,
 0x2,0x2,0x3,0x4,0x5,0x6
 };
+
+void checkout(char* res, char* out) {
+	int i = 0;
+	while (res[i] != 0) {
+		if (res[i] != out[i]) {
+			printf("\n\nFix an error and try again later\n\n");
+			system("pause");
+			exit(1);
+		}
+		i++;
+	}
+}
+
+void	getout(char* outx) {
+	int i = 0;
+	while (out[i] != 0) {
+		outx[i] = out[i];
+		i++;
+	}
+}
+
 void	prOpBr(struct lxNode*rt)//відкриті дужки
 {
 	if (rt->ndOp>_inr || rt->ndOp<_if
 		|| (rt->ndOp >= _to&&rt->ndOp <= _step))
 	{
-		printf("%s", oprtr[_brkt]); mode = 0;
+		printf("%s", oprtr[_brkt]);
+		char buf[1024] = " ";
+		snprintf(buf, sizeof(buf), "%s", oprtr[_brkt]);
+		out[size] = buf[0];
+		size++;
+		mode = 0;
 	}
-	else if (mode != 0) { printf(" "); mode = 0; }
+	else if (mode != 0) { 
+		printf(" "); 
+		mode = 0; 
+	}
 	/* else*/ if (!(rt&&rt->ndOp != _EOS))
 	{
-		printf("%s", oprtr[_opbr]); mode = modeL;
+		printf("%s", oprtr[_opbr]);
+		char buf[1024] = " ";
+		snprintf(buf, sizeof(buf), "%s", oprtr[_opbr]);
+		out[size] = buf[0];
+		size++;
+		mode = modeL;
 	}
 }
 void	prClBr(struct lxNode*rt)//закриті дужки
@@ -130,18 +166,33 @@ void	prClBr(struct lxNode*rt)//закриті дужки
 	if (rt->ndOp>_inr || rt->ndOp<_if
 		|| (rt->ndOp >= _to&&rt->ndOp <= _step))
 	{
-		printf("%s", oprtr[_bckt]); mode = 0;
+		printf("%s", oprtr[_bckt]);
+		char buf[1024] = " ";
+		snprintf(buf, sizeof(buf), "%s", oprtr[_bckt]);
+		out[size] = buf[0];
+		size++;
+		mode = 0;
 	}
 	else if (rt&&rt->ndOp != _EOS)
 	{
 		;/*if(rt->ndOp<_opbr||(rt->ndOp>=_asOr&&rt->ndOp>=_asOr))
 		 			{printf("%s",oprtr[_EOS]); mode=0;}*/
 	}
-	else printf("%s%s", oprtr[_EOS], oprtr[_ocbr]);
+	else { 
+		printf("%s%s", oprtr[_EOS], oprtr[_ocbr]);
+		char buf[1024] = " ";
+		snprintf(buf, sizeof(buf), "%s", oprtr[_EOS]);
+		out[size] = buf[0];
+		size++;
+		snprintf(buf, sizeof(buf), "%s", oprtr[_ocbr]);
+		out[size] = buf[0];
+		size++;
+	}
 }
 // виведення піддерва лексем
 void	prLxTxt(struct lxNode*rt) //корінь піддерева 
 {
+	char buf[1024] = " ";
 	static int mdCnt = 0; // лічильники входжень
 	struct lxNode* rt0; // робочий вказівник
 	char n = 0, c, bC = 0, opCnt = 0;
@@ -151,6 +202,9 @@ void	prLxTxt(struct lxNode*rt) //корінь піддерева
 		{
 			if (mode == 1 && rt->ndOp<begOprtr - 8)printf(" ");
 			printf("%s", rt->prvNd);
+			snprintf(buf, sizeof(buf), "%s", rt->prvNd);
+			out[size] = buf[0];
+			size++;
 			mode = 1;
 		}
 	}	// вихід з рекурсії
@@ -171,6 +225,13 @@ void	prLxTxt(struct lxNode*rt) //корінь піддерева
 			case 1: /*case 'f':*/ if (mode != 0 && rt->ndOp >= _if
 				&&rt->ndOp<begOprtr - 8)printf(" ");
 				printf("%s", oprtr[rt->ndOp&(~_lVlu)]);
+				snprintf(buf, sizeof(buf), "%s", oprtr[rt->ndOp&(~_lVlu)]);
+				out[size] = buf[0];
+				size++;
+				if (buf[1] != 0) {
+					out[size] = buf[1];
+					size++;
+				}
 				if (rt->ndOp >= begOprtr - 8)mode = 0;
 				else mode = 1; break;
 			case 'x': case 'y': case 5: case 4:
@@ -189,7 +250,12 @@ void	prLxTxt(struct lxNode*rt) //корінь піддерева
 				}
 			case 'z':opCnt++;		// підготовка наступного аргумента
 				break;
-			default:printf("%c", c);
+			default: {
+				printf("%c", c);
+				snprintf(buf, sizeof(buf), "%c", c);
+				out[size] = buf[0];
+				size++;
+			}
 			}
 			//	mdC=mdCnt;
 			if (c == -1 && mdCnt != 0)break;
@@ -204,12 +270,20 @@ void	prLxTxt(struct lxNode*rt) //корінь піддерева
 			prLxTxt(rt0);
 			if (bC)prClBr(rt0);
 		}
-		if (mode == 1 && (rt->ndOp&(~_lVlu))<begOprtr - 8)printf(" ");
+		if (mode == 1 && (rt->ndOp&(~_lVlu)) < begOprtr - 8) { //printf(" "); 
+		}
 		//	  if(rt->ndOp!=_EOS||rt->prvNd->ndOp!=_EOS||rt->pstNd==NULL)
 		printf("%s", oprtr[rt->ndOp&(~_lVlu)]);
+		snprintf(buf, sizeof(buf), "%s", oprtr[rt->ndOp&(~_lVlu)]);
+		out[size] = buf[0];
+		size++;
 		if ((rt->ndOp&(~_lVlu))>begOprtr - 8)mode = 0; else mode = 1;
-		if (rt->ndOp == _remL || rt->ndOp == _rem)
-			printf("%s\n", rt->prvNd);
+		if (rt->ndOp == _remL || rt->ndOp == _rem) {
+			printf("%s", rt->prvNd);
+			snprintf(buf, sizeof(buf), "%s", rt->prvNd);
+			out[size] = buf[0];
+			size++;
+		}
 		/* else*/ {rt0 = rt->pstNd;
 		if (rt0 != NULL)
 		{
@@ -221,11 +295,19 @@ void	prLxTxt(struct lxNode*rt) //корінь піддерева
 		}}
 		if ((rt->ndOp&(~_lVlu)) >= _opbr && (rt->ndOp&(~_lVlu)) <= _bckt)
 		{
-			printf("%s", oprtr[(rt->ndOp&(~_lVlu)) + 1]); mode = 0;
+			printf("%s", oprtr[(rt->ndOp&(~_lVlu)) + 1]);
+			snprintf(buf, sizeof(buf), "%s", oprtr[(rt->ndOp&(~_lVlu)) + 1]);
+			out[size] = buf[0];
+			size++;
+			mode = 0;
 		}
 		if ((rt->ndOp&(~_lVlu)) >= _opbz && (rt->ndOp&(~_lVlu)) <= _tdbz)
 		{
-			printf("%s", oprtr[((rt->ndOp&(~_lVlu)) - _frkz) * 2 + _fork + 1]); mode = 0;
+			printf("%s", oprtr[((rt->ndOp&(~_lVlu)) - _frkz) * 2 + _fork + 1]);
+			snprintf(buf, sizeof(buf), "%s", oprtr[((rt->ndOp&(~_lVlu)) - _frkz) * 2 + _fork + 1]);
+			out[size] = buf[0];
+			size++;
+			mode = 0;
 		}
 	}	 return;
 }
@@ -256,6 +338,7 @@ void	prClBr(struct lxNode*rt, FILE*f)//закриті дужки
 	}
 	else fprintf(f, "%s%s", oprtr[_EOS], oprtr[_ocbr]);
 }
+
 void	prLxTxt(struct lxNode*rt, FILE*f) //корінь піддерева 
 {
 	static int mdCnt = 0; // лічильники входжень
@@ -405,61 +488,6 @@ void	prLaTxt(char* res ,struct lxNode*ar, unsigned n) //початок масиву лексем
 			}
 			if (ar[i].ndOp>begOprtr - 8)mode = 0; else mode = 1;
 		}
-	} while (++i<n);
-}
-
-void makeString(char* res, struct lxNode*ar, unsigned n) //початок масиву лексем 
-{
-	unsigned i = 0;
-	int k = 0;
-	if (ar[i].ndOp <= _cnst || ar[i].ndOp == _remL)
-	{
-		if (ar[i].ndOp != _nil)// обробка термінального операнда
-		{
-			if (ar[i].ndOp == _remL) {
-				char buf[1024];
-				snprintf(buf, sizeof(buf), "%s", oprtr[ar[i].ndOp]);
-				int j = 0;
-				while (buf[j] != 0) {
-					res[k] = buf[j];
-					j++;
-					k++;
-				}
-			}
-			if (ar[i].ndOp == _remL) {
-				char buf[1024];
-				snprintf(buf, sizeof(buf), "%s", ar[i].prvNd);
-				int j = 0;
-				while (buf[j] != 0) {
-					res[k] = buf[j];
-					j++;
-					k++;
-				}
-			}
-			else {
-				char buf[1024];
-				snprintf(buf, sizeof(buf), "%s", ar[i].prvNd);
-				int j = 0;
-				while (buf[j] != 0) {
-					res[k] = buf[j];
-					j++;
-					k++;
-				}
-			}
-			mode = 1;
-		}
-	}	// 
-	else
-	{
-		char buf[1024] = " ";
-		snprintf(buf, sizeof(buf), "%s", oprtr[ar[i].ndOp]);
-		int j = 0;
-		while (buf[j] != 0) {
-			res[k] = buf[j];
-			j++;
-			k++;
-		}
-		if (ar[i].ndOp>begOprtr - 8)mode = 0; else mode = 1;
 	} while (++i<n);
 }
 

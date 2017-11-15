@@ -187,14 +187,28 @@ void brackets_analyse(struct lxNode*nd,int size) {
 			c2++;
 		}
 		//Если после цифры или буквы стоит не арифметическая операция
-		if ((nd[i].ndOp == _nam) || (nd[i].ndOp == _srcn) && !((nd[i].ndOp >= 233) && (nd[i].ndOp <= 236))) {
+		if ((nd[i].ndOp == _nam) || (nd[i].ndOp == _srcn) && !((nd[i].ndOp >= 233) && (nd[i].ndOp <= 236) && (nd[i].ndOp >= 219) && (nd[i].ndOp <= 220))) {
 			//Если там всего 1 буква то можно
 			if (size != 3) {
 				error();
 			}
 		}
 
-		if ((nd[i].ndOp >= 233) && (nd[i].ndOp <= 236)) {
+		if ((nd[i].ndOp == 219)|| (nd[i].ndOp == 220) || (nd[i+1].ndOp == 219) || (nd[i+1].ndOp == 220)) {
+			if ((nd[i].ndOp == _nam) && ((nd[i + 1].ndOp == 219) || (nd[i + 1].ndOp == 220))) {
+				c1++;
+				i++;
+			}
+			else if ((nd[i + 1].ndOp == _nam) && ((nd[i].ndOp == 219) || (nd[i].ndOp == 220))) {
+				c1++;
+				i++;
+			}
+			else {
+				error();
+			}
+		}
+
+		if (((nd[i].ndOp >= 233) && (nd[i].ndOp <= 236)) || ((nd[i].ndOp >= 244) && (nd[i].ndOp <= 247))) {
 			c1++;
 		}
 		if ((nd[i].ndOp == _nam) || (nd[i].ndOp == _srcn)) {
@@ -232,6 +246,16 @@ int SxAnlz(struct lxNode*nd,int nn)	// вказівник на початок масиву вузлів
 		if ((nd[i].ndOp == _err)|| (c1>0) || (c2>0)) {
 			error();
 		}
+		if ((nd[i].ndOp == 219) || (nd[i].ndOp == 220)) {
+			if (i == 0) {
+				if (nd[i + 1].ndOp != _nam) {
+					error();
+				}
+			}
+			else if ((nd[i + 1].ndOp != _nam) && (nd[i - 1].ndOp != _nam) && (nd[i - 1].ndOp != _scbr)) {
+				error();
+			}
+		}
 		if (nd[i].ndOp == _ixbr) {
 			//nd[i].ndOp = _ixbz;
 			c1++;
@@ -268,7 +292,7 @@ int SxAnlz(struct lxNode*nd,int nn)	// вказівник на початок масиву вузлів
 				error();
 			}
 		}
-		if ((nd[i].ndOp == 0) && (nd[i].ndOp != 1) && (nd[i].ndOp != 2) && (nd[i].ndOp < 233) && (nd[i].ndOp>236) && (nd[i].ndOp < 208) && (nd[i].ndOp > 215) && (nd[i].ndOp != 218) && (nd[i].ndOp < 196) && (nd[i].ndOp > 199)) {
+		if ((nd[i].ndOp == 0) && (nd[i].ndOp != 1) && (nd[i].ndOp != 2) && (nd[i].ndOp < 233) && (nd[i].ndOp>236) && (nd[i].ndOp < 208) && (nd[i].ndOp > 215) && (nd[i].ndOp != 218) && (nd[i].ndOp < 196) && (nd[i].ndOp > 199) && (nd[i].ndOp != 219) && (nd[i].ndOp != 220)) {
 			error();
 		}
 	}
@@ -338,19 +362,55 @@ int SxAnlz(struct lxNode*nd,int nn)	// вказівник на початок масиву вузлів
 		c2 = 0; //operands
 		while (nd[i].ndOp != _EOS) {
 			if (!flag) {
-				if (((nd[i].ndOp == _nam) && (nd[i + 1].ndOp == _ixbr)) || ((nd[i].ndOp == _nam) && ((nd[i + 1].ndOp >= 208) || (nd[i + 1].ndOp <= 215)))) {
+				if ((nd[i].ndOp == 219) || (nd[i].ndOp == 220) || (nd[i + 1].ndOp == 219) || (nd[i + 1].ndOp == 220)) {
+					if ((nd[i].ndOp == _nam) && ((nd[i + 1].ndOp == 219) || (nd[i + 1].ndOp == 220))) {
+						i++;
+						if (nd[i + 2].ndOp == _EOS) {
+							i++;
+						}
+						else {
+							flag = true;
+						}
+					}
+					else if ((nd[i + 1].ndOp == _nam) && ((nd[i].ndOp == 219) || (nd[i].ndOp == 220))&& (nd[i + 2].ndOp == _EOS)) {
+						i++;
+						if (nd[i + 2].ndOp == _EOS) {
+							i++;
+						}
+						else {
+							flag = true;
+						}
+					}
+					else if ((nd[i + 1].ndOp == _nam) && ((nd[i].ndOp == 219) || (nd[i].ndOp == 220)) && (nd[i + 2].ndOp == _ixbr)) {
+						i++;
+					}
+					else {
+						error();
+					}
+				}
+				if (((nd[i].ndOp == _nam) && (nd[i + 1].ndOp == _ixbr)) || ((nd[i].ndOp == _nam) && ((nd[i + 1].ndOp >= 208) && (nd[i + 1].ndOp <= 215)))) {
 					if ((nd[i].ndOp == _nam) && ((nd[i + 1].ndOp >= 208) || (nd[i + 1].ndOp <= 215))) {
 						flag = true;
 						i++;
 					}
-					while (!(((nd[i].ndOp == _scbr) && ((nd[i + 1].ndOp == _ass) || (nd[i + 1].ndOp >= 208) || (nd[i + 1].ndOp <= 215)|| (nd[i+1].ndOp == _EOS))) || flag)) {
-						if ((nd[i].ndOp == _scbr) && (nd[i + 1].ndOp != _ass) && (nd[i + 1].ndOp < 208) && (nd[i + 1].ndOp > 215)) {
-							error();
+					else {
+						while (!(((nd[i].ndOp == _scbr) && ((nd[i + 1].ndOp == _ass) || (nd[i + 1].ndOp >= 208) || (nd[i + 1].ndOp <= 215) || (nd[i + 1].ndOp == _EOS) || (nd[i + 1].ndOp == 219) || (nd[i + 1].ndOp == 220))) || flag)) {
+							if ((nd[i].ndOp == _scbr) && (nd[i + 1].ndOp != _ass) && (nd[i + 1].ndOp < 208) && (nd[i + 1].ndOp > 215) && (nd[i + 1].ndOp != 219) && (nd[i + 1].ndOp != 220)) {
+								error();
+							}
+							i++;
 						}
 						i++;
+						if ((nd[i].ndOp == 219) || (nd[i].ndOp == 220)) {
+							if ((nd[i + 1].ndOp == _ass) || (nd[i + 1].ndOp >= 208) || (nd[i + 1].ndOp <= 215) || (nd[i + 1].ndOp == _EOS)) {
+								i++;
+							}
+							else {
+								error();
+							}
+						}
+						flag = true;
 					}
-					i++;
-					flag = true;
 				}
 				if (nd[i + 1].ndOp == _EOS) {
 					flag = true;
@@ -404,7 +464,7 @@ int SxAnlz(struct lxNode*nd,int nn)	// вказівник на початок масиву вузлів
 				error();
 			}
 
-			if ((nd[i].ndOp >= 233) && (nd[i].ndOp <= 236)) {
+			if (((nd[i].ndOp >= 233) && (nd[i].ndOp <= 236))|| ((nd[i].ndOp >= 244) && (nd[i].ndOp <= 247))) {
 				c1++;
 			}
 

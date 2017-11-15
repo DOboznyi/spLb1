@@ -8,5 +8,5 @@ void	prLxTxt(struct lxNode*rt, FILE*f); //корінь піддерева
 void	prLaTxt(char* res,struct lxNode*ar, unsigned n); //початок масиву лексем 
 void	prLaTbl(struct lxNode*ar, unsigned n); //початок масиву лексем 
 void	prNode(struct lxNode*ar);
-void	makeString(char* res, struct lxNode*ar, unsigned n);
 void	getout(char* outx);
+void checkout(char* res, char* out);

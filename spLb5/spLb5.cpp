@@ -45,20 +45,28 @@ int main(int argc, char* argv[])
 		nn = LxAnlzr();
 	} while (nodes[nn].ndOp != _EOF);
 	char res[200] = " ";
+	printf("Inputed text: ");
 	prLaTxt(res, nodes, nn);
 	printf("\n");
-	//prLaTbl(nodes, nn);
+	prLaTbl(nodes, nn);
 	printf("\n");
-	SxAnInit('C');
-	nr = 0; nc = 1; nodes[0].prnNd = -1;
-	//nr = SxAnlz(nodes,nn);
-	do {nr = nxtProd(nodes, nr, nc);
-	}
-	while (++nc<nn);
+	//SxAnInit('C');
+	//nr = 0; nc = 1; nodes[0].prnNd = -1;
+	nr = SxAnlz(nodes,nn);
+	//do {nr = nxtProd(nodes, nr, nc);
+	//}
+	//while (++nc<nn);
 	// конверсія до семантичної обробки
-	prLxTxt(nodes + nr);
-	//char outx[200];
+	printf("Syntax analyse is ok!");
+	//prLxTxt(nodes + nr);
+	//char outx[200] = " ";
 	//getout(outx);
+	//int i = 0;
+	//while (outx[i] != 0) {
+	//	printf("%c", outx[i]);
+	//	i++;
+	//}
+	//checkout(res, outx);
 	//	nr=prCmpr(nodes,nn,nr);// компресія для скорочення графа
 	//	prLxTxt(nodes+nr); 
 	printf("\n");
