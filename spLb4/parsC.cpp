@@ -11,7 +11,7 @@ enum tokType dlCdsC[256]=
  _nil,_xmrk,_nil,_nil/*#*/, _nil/*$*/,_mod,_andB,_nil,
  _brkt,_bckt,_mul,_add, _comma,_sub,_fldDt,_div,	//48
  _nil,_nil,_nil,_nil, _nil,_nil,_nil,_nil, 
- _nil,_nil,_cln,_EOS, _lt,_ass,_gt,_qmrk,// 64
+ _nil,_nil,_cln,_EOS, _lt, _nil,_gt,_qmrk,// 64
  _nil,_nil,_nil,_nil, _nil,_nil,_nil,_nil,
  _nil,_nil,_nil,_nil, _nil,_nil,_nil,_nil,//80
  _nil,_nil,_nil,_nil, _nil,_nil,_nil,_nil,

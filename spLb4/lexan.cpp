@@ -5,6 +5,7 @@
 #include "tables.h"
 #include "index.h"
 #include <stdlib.h>
+#include <stdio.h>
 extern enum ltrType *ltCls;	// уточнюються для версій та режимів
 extern enum autStat nxtStsC[Eo + 1][ltrcode + 1];
 extern enum autStat nxtStsP[Eo + 1][ltrcode + 1];
@@ -50,6 +51,7 @@ void LxAnInit(char nl)
 }
 // функція лексичного аналізу чергової лексеми
 int cntMdB = 0;
+
 int LxAnlzr(void)
 {//static int lxNmb=0;
 	static enum autStat s = S0, sP; // поточний та попередній стан лексеми
@@ -192,7 +194,11 @@ int LxAnlzr(void)
 		break;
 	default:	// не дійшли до класифікованих помилок
 	case Eu: case Ec: case Ep: case Eq: case En: case Eo:// обробка помилок
-	{eNeut(nNode); }		// фіксація помилки
+	{eNeut(nNode);
+	printf("\n\nFix an error and try again later\n\n");
+	system("pause");
+	exit(1);
+	}		// фіксація помилки
 	case S1c: case S2c: case S1p: case S2s:	// формування констант
 	{imgBuf[nImCr - 1] = 0;
 	nodes[nNode].resLength = sP;//	frmCns(sP, nNode); break;
@@ -212,4 +218,3 @@ int LxAnlzr(void)
 	}
 	return nNode++;
 }
- 

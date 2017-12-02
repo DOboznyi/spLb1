@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 do{//np=nn;
  nn=LxAnlzr();
 }while(nodes[nn].ndOp!=_EOF);
-	prLaTxt(nodes,nn);
+	//prLaTxt(nodes,nn);
 	printf("\n");
 	SxAnInit('C');
 	nr=0; nc=1; nodes[0].prnNd=-1;
@@ -49,7 +49,7 @@ do{//np=nn;
 	// конверсія до семантичної обробки
 	prLxTxt(nodes+nr);
 	printf("\n");
-//	nr=prCmpr(nodes,nn,nr);// компресія для скорочення графа
+	nr=prCmpr(nodes,nn,nr);// компресія для скорочення графа
 	SmAnlzr(nodes+nr,nr);
 	prLxTxt(nodes+nr);
 	printf("\n");

@@ -39,6 +39,7 @@ enum ltrType *ltCls = ltClsC;
 enum tokType *dlCds = dlCdsC;
 struct recrdKWD exmpl = { "!=",_ne,1 };
 int n = 67;
+char resss[20];
 int main(int argc, char* argv[])
 {
 	int nn = -1;//np,
@@ -61,7 +62,7 @@ int main(int argc, char* argv[])
 	do {//np=nn;
 		nn = LxAnlzr();
 	} while (nodes[nn].ndOp != _EOF);
-	prLaTxt(nodes, nn);
+	prLaTxt(resss,nodes, nn);
 	printf("\n\nTotal number of elements in table: %i\n", nn);
 	printf("\nTable of lexems:\n");
 	prLaTbl(nodes, nn);

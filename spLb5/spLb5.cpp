@@ -50,14 +50,14 @@ int main(int argc, char* argv[])
 	printf("\n");
 	prLaTbl(nodes, nn);
 	printf("\n");
-	//SxAnInit('C');
-	//nr = 0; nc = 1; nodes[0].prnNd = -1;
-	nr = SxAnlz(nodes,nn);
-	//do {nr = nxtProd(nodes, nr, nc);
-	//}
-	//while (++nc<nn);
+	SxAnInit('C');
+	nr = 0; nc = 1; nodes[0].prnNd = -1;
+	//nr = SxAnlz(nodes,nn);
+	do {nr = nxtProd(nodes, nr, nc);
+	}
+	while (++nc<nn);
 	// конверсія до семантичної обробки
-	printf("Syntax analyse is ok!");
+	printf("Syntax analyse is ok");
 	//prLxTxt(nodes + nr);
 	//char outx[200] = " ";
 	//getout(outx);

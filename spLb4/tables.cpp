@@ -20,6 +20,14 @@ int cmpKys(char *k0, char *kArg)
 // вибірка за двійковим пошуком
 struct recrdKWD*selBin(char* kArg, struct recrdKWD*tb, int ln)
 {
+	/*int count = -1;
+	for (int i = 0; i < ln; i++) {
+		if (cmpKys(tb[i].key, kArg) == 0) {
+			return &tb[i];
+		}
+	}
+	return NULL;*/
+	
 	int i, nD = -1, nU = ln, n = (nD + nU) >> 1;
 	while (i = cmpKys(tb[n].key, kArg))
 	{
@@ -28,6 +36,7 @@ struct recrdKWD*selBin(char* kArg, struct recrdKWD*tb, int ln)
 		if (n == nD)return NULL;
 	}
 	return &tb[n];
+	
 }
 // сортування для двійкового пошуку
 struct recrdKWD*srtBin(struct recrdKWD*tb, int ln)

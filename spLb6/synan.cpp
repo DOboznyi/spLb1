@@ -8,13 +8,13 @@ using namespace std;
 
 // Строковые представления символов-результатов лексического разбора (используется при выводе ошибок)
 char* tokTypeStr [400] = 
-{"_nil", "_nam",	//0 зовнішнє подання
+{"_nil", "identificator",	//0 зовнішнє подання
  "_srcn",	"_cnst",	//2 вхідне і внутрішнє кодування константи
- "_if","_then","_else","_elseif",	//4 if then else elseif
+ "if","_then","_else","_elseif",	//4 if then else elseif
  "_case", "_switch", "_default", "_endcase",//8 case switch defualt endcase
  "_break", "_return", "_whileP", "_whileN", //12 break return while do
  "_continue", "_repeat", "_untilN", "_endloop", //16 continue repeat until
- "_for", "_to", "_downto", "_step",// for to downto step 
+ "for", "to", "downto", "step",// for to downto step 
  "_untilP", "_loop", "_with", "_endif",	
  "_void","_extern","_var","_const","_enum","_struct" ,"_union","_register",//
  "_unsigned","_signed","_char","_short","_int","_long","_sint64","_uint64",//
@@ -46,19 +46,19 @@ char* tokTypeStr [400] =
  "_pulldown","_pullup","_bufif0","_bufif1","_notif0","_notif1",  //Verilog+70
  "_cmos","_rcmos","_nmos","_pmos","_rnmos","_rpmos",  //Verilog+76
  "_fork", 	// відкриті і закриті дужки паралельних операторів 2
- "_opbr", "_ocbr",	// відкриті і закриті дужки операторів 2
+ "begin", "end",	// відкриті і закриті дужки операторів 2
  "_ctbr",	"_fcbr",	// відкриті і закриті дужки конкатенацій 3 
- "_ixbr", "_scbr",	// відкриті і закриті дужки індексу 4
- "_brkt", "_bckt",	// відкриті і закриті дужки порядку і функцій 5
- "_tdbr", "_tcbr",	// відкриті і закриті дужки даних 6
+ "[", "]",	// відкриті і закриті дужки індексу 4
+ "(", ")",	// відкриті і закриті дужки порядку і функцій 5
+ "{", "}",	// відкриті і закриті дужки даних 6
  "_eosP", "eosS",	// паралельні та послідовні
- "_EOS=begOprtr", "_comma", "_cln", "_qmrk",// ; ", : ?
+ ";", "_comma", "_cln", "_qmrk",// ; ", : ?
  "_asOr", "_asAnd", "_asXor", "_asAdd",		//|= =& =^ =+
  "_asSub", "_asMul", "_asDiv", "_asMod",	// -= *= /= %=
  "_asShr","_asShl", "_ass", "_dcr", "_inr", 	// <<= >>= = -- ++ 
  "_dcrN","_inrN","_mcrs","_dbcln","_eoCm","_EOF", //-- ++ //  #  ::  */ 
- "_lt","_le", "_eq", "_ne", "_ge","_gt",		// < <= == != >= >
- "_add", "_sub", "_mul", "_div", "_fldDt", "_fldPt",// + - * / . ->
+ "<","<=", "=", "!=", ">=",">",		// < <= == != >= >
+ "_add", "_sub", "_mul", "/", ".", "_fldPt",// + - * / . ->
  "_pwr", "_shLfa", "_shRga", "_eqB", "_neB",	// ** <<< >>> === !==
  "_addU","_subU","_refU", "_ptrU",		// + - * & унарні
  "_lmts","_eqar","_astar","_trasand",	// PV+4 ..  => *> &&&
@@ -78,6 +78,8 @@ char* tokTypeStr [400] =
  "_tdbz"	// відкриті і закриті дужки даних 6
 // "_pnil 
 };
+
+bool flag;
 
 //Все нетерминалы грамматики в строковом виде (нужно при выводе ошибок)
 char* synTypeStr [16] = {
@@ -213,29 +215,45 @@ synNode* trace_Bool_Expression()
 	switch (thread->lookNext())
 	{
 		case _ass:
+			flag = true;
 			temp->addChild(trace_Terminal(thread->getNext()));
 			t = trace_Expression();
 			temp->addChild(t);
 			break;
 		case _ne:
+			flag = true;
 			temp->addChild(trace_Terminal(thread->getNext()));
 			temp->addChild(trace_Expression());
 			break;
 		case _le:
+			flag = true;
 			temp->addChild(trace_Terminal(thread->getNext()));
 			temp->addChild(trace_Expression());
 			break;
 		case _ge:
+			flag = true;
 			temp->addChild(trace_Terminal(thread->getNext()));
 			temp->addChild(trace_Expression());
 			break;
 		case _lt:
+			flag = true;
 			temp->addChild(trace_Terminal(thread->getNext()));
 			temp->addChild(trace_Expression());
 			break;
 		case _gt:
+			flag = true;
 			temp->addChild(trace_Terminal(thread->getNext()));
 			temp->addChild(trace_Expression());
+			break;
+		case _eq:
+			flag = true;
+			temp->addChild(trace_Terminal(thread->getNext()));
+			temp->addChild(trace_Expression());
+			break;
+		default:
+			if (!flag) {
+				thread->matchNext(_eq);
+			}
 			break;
 	};
 	return temp;
@@ -324,17 +342,29 @@ synNode* trace_Expression()
 //if_with_else         ::= "if" bool_expression block "else" block ";"
 synNode* trace_If() 
 {
+	flag = false;
 	thread->matchNext(_if);
 	synNode* temp = new synNode(_if_node);
 	temp->addChild(trace_Bool_Expression());
     thread->matchNext(_then);
-	temp->addChild(trace_Block());
+	if (thread->lookNext()==_opbr){
+		temp->addChild(trace_Block());
+	}
+	else if (thread->lookNext() == _nam) {
+		temp->addChild(trace_Assignment());
+	}
+	else if (thread->lookNext() == _if) {
+		temp->addChild(trace_If());
+	}
 	if (thread->lookNext() == _else) 
 	{
 		thread->matchNext(_else);
 		temp->addChild(trace_Block());
 	}
-	thread->matchNext(_EOS);
+	if (thread->lookNext() != _ocbr) 
+	{
+		thread->matchNext(_EOS);
+	}
 	return temp;
 };
 
@@ -345,11 +375,25 @@ synNode* trace_For()
 	synNode* temp = new synNode(_for_node);
 	temp->addChild(trace_Terminal(thread->getNext()));
 	thread->matchNext(_ass);
-	temp->addChild(trace_Bool_Expression());
+	temp->addChild(trace_Signed_Factor());
 	thread->matchNext(_to);
-	temp->addChild(trace_Bool_Expression());
+	thread->matchNext(_nam);
+	//temp->addChild(trace_Bool_Expression());
 	thread->matchNext(_loop);
-	temp->addChild(trace_Block());
+	if (thread->lookNext()==_opbr){
+		temp->addChild(trace_Block());
+	}
+	else if (thread->lookNext() == _nam) {
+		temp->addChild(trace_Assignment());
+	}
+	else if (thread->lookNext() == _EOS) 
+	{
+		thread->matchNext(_EOS);
+		return temp;
+	}
+	else if (thread->lookNext() == _for) {
+		trace_For();
+	}
 	thread->matchNext(_EOS);
 	return temp;
 };
@@ -363,6 +407,7 @@ synNode* trace_While()
 //Обработчик правила assignment ::= IDENTIFIER ":=" bool_expression ";"
 synNode* trace_Assignment() 
 {
+	//thread->matchNext(_nam);
 	synNode* temp = new synNode(_assignment);
 	temp->addChild(trace_Terminal(thread->getNext()));
 	thread->matchNext(_ass);

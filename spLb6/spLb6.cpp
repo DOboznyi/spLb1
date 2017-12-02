@@ -34,8 +34,8 @@ extern enum tokType dlCdsC[256];
 extern enum tokType dlCdsP[256];
 extern enum ltrType ltClsC[256];
 extern enum ltrType ltClsP[256];
-enum ltrType *ltCls = ltClsC;
-enum tokType *dlCds = dlCdsC;
+enum ltrType *ltCls = ltClsP;
+enum tokType *dlCds = dlCdsP;
 int main(int argc, char* argv[]) {
 	int nn = -1;//np,
 	if (argc > 1) {

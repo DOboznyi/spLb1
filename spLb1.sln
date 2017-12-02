@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spLb1", "spLb1.vcxproj", "{3A4BDDC0-DD09-4897-A801-DA4D28C83C38}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spLb9", "spLb9\spLb9.vcxproj", "{B83A8D20-23D3-4E91-966C-24CF6335F974}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spLb9c", "spLb9c\spLb9c.vcxproj", "{4ADFEBC2-B400-4971-9264-E4C5A4D2581E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spLb6", "spLb6\spLb6.vcxproj", "{21255763-9205-E87D-3DF0-80E353D305BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,6 +84,12 @@ Global
 		{4ADFEBC2-B400-4971-9264-E4C5A4D2581E}.Release|x86.Build.0 = Release|Win32
 		{4ADFEBC2-B400-4971-9264-E4C5A4D2581E}.Template|x86.ActiveCfg = Template|Win32
 		{4ADFEBC2-B400-4971-9264-E4C5A4D2581E}.Template|x86.Build.0 = Template|Win32
+		{21255763-9205-E87D-3DF0-80E353D305BD}.Debug|x86.ActiveCfg = Debug|Win32
+		{21255763-9205-E87D-3DF0-80E353D305BD}.Debug|x86.Build.0 = Debug|Win32
+		{21255763-9205-E87D-3DF0-80E353D305BD}.Release|x86.ActiveCfg = Release|Win32
+		{21255763-9205-E87D-3DF0-80E353D305BD}.Release|x86.Build.0 = Release|Win32
+		{21255763-9205-E87D-3DF0-80E353D305BD}.Template|x86.ActiveCfg = Template|Win32
+		{21255763-9205-E87D-3DF0-80E353D305BD}.Template|x86.Build.0 = Template|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
