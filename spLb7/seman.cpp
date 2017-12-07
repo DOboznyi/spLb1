@@ -123,7 +123,7 @@ int SmAnlzr(struct lxNode * nd,	// покажчик на початок масиву вузлів
  }
  else if(nd->ndOp==_nam)//якщо термінал-ім'я
  {pRtNdx=selBTr(nd,ndxNds);//пошук імені
- // якщо не знайдено - неописане ім'я
+ // якщо не знайдено - неописане ім'я            !!!!!!!!!!!!!
 	name=(char*)pRtNdx->pKyStr->prvNd;
 /*	nd->pstNd=pRtNdx->pKyStr->pstNd;*/
 	nd->dataType=tPrv=(enum datType)pRtNdx->pKyStr->dataType;

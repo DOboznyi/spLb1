@@ -177,7 +177,7 @@ int LxAnlzr(void)
 		imgBuf[nImCr - 1] = 0;
 		// пошук у таблиці ключів;
 		if (*(imgBuf + nImBg) == 13)nImBg++;
-		pRt = selBin(imgBuf + nImBg, tablKWD, 67);
+		pRt = selBin(imgBuf + nImBg, tablKWD, 68);
 		if (pRt) {
 			nodes[nNode].ndOp = pRt->func;
 			// якщо знайдено

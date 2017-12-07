@@ -11,7 +11,7 @@ enum tokType dlCdsC[256]=
  _nil,_xmrk,_nil,_nil/*#*/, _nil/*$*/,_mod,_andB,_nil,
  _brkt,_bckt,_mul,_add, _comma,_sub,_fldDt,_div,	//48
  _nil,_nil,_nil,_nil, _nil,_nil,_nil,_nil, 
- _nil,_nil,_cln,_EOS, _lt, _nil,_gt,_qmrk,// 64
+ _nil,_nil,_cln,_EOS, _lt, _ass,_gt,_qmrk,// 64
  _nil,_nil,_nil,_nil, _nil,_nil,_nil,_nil,
  _nil,_nil,_nil,_nil, _nil,_nil,_nil,_nil,//80
  _nil,_nil,_nil,_nil, _nil,_nil,_nil,_nil,
@@ -90,7 +90,7 @@ enum autStat nxtStsC[Eo+1][ltrcode+1] =	// for C/C++
  {En,En,Eq,Eq,Eq,Eq,Eq,Ec, S0,S0,S0,S0,S0,S0, S0,S0,S0 , S0,S0},			// для En
  {Eo,Eo,Eo,Eq,Eq,Eq,Eq,Ec, S0,S0,S0,S0,S0,S0, S0,S0,S0 , S0,S0}			// для Eo...
 };
-struct recrdKWD tablKWDC[67]=
+struct recrdKWD tablKWDC[68]=
 {{oprtrC[_ne],_ne,1},	{oprtrC[_asMod],_asMod,1},
 {oprtrC[_and],_and,1},	{oprtrC[_asAnd],_asAnd,1},
 {oprtrC[_asMul],_asMul,1},{oprtrC[_inr],_inr,1},
@@ -125,5 +125,5 @@ struct recrdKWD tablKWDC[67]=
 {oprtrC[_unsigned],_unsigned},{oprtrC[_virtual],_virtual},
 {oprtrC[_void],_void},		{oprtrC[_volatile],_volatile},
 {oprtrC[_whileP],_whileP},
-{oprtrC[_asOr],_asOr,1},{oprtrC[_or],_or,1},	
+{oprtrC[_asOr],_asOr,1}
 };

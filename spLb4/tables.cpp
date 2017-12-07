@@ -26,7 +26,8 @@ struct recrdKWD*selBin(char* kArg, struct recrdKWD*tb, int ln)
 			return &tb[i];
 		}
 	}
-	return NULL;*/
+	return NULL;
+	*/
 	
 	int i, nD = -1, nU = ln, n = (nD + nU) >> 1;
 	while (i = cmpKys(tb[n].key, kArg))
