@@ -5,8 +5,10 @@
 #include "seman.h"
 #include "lexcalc.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
 unsigned nbBlk=0;
-extern struct recrdSMA	ftTbl[353];// таблиц€ припустимост≥ тип≥в дл€ операц≥й
+extern struct recrdSMA	ftTbl[362];// таблиц€ припустимост≥ тип≥в дл€ операц≥й
 struct recrdSMA	ftImp=	// таблиц€ припустимост≥ тип≥в дл€ операц≥й
 {_nil,_v,0,_v,0,_v,0};
 extern int nInCr, lnCod[];	// вектор довжин тип≥в
@@ -25,13 +27,22 @@ int cmpStr(struct recrdSMA *s1, struct recrdSMA *s2)
 }
 // виб≥рка за дв≥йковим пошуком
 struct recrdSMA*selBin(struct recrdSMA *kArg, struct recrdSMA*tb, int ln)
-{int i, nD=-1, nU=ln, n=(nD+nU)>>1;
+{
+	for (int i = 0; i < ln; i++) {
+		if (cmpStr(tb+i, kArg) == 0) {
+			return &tb[i];
+		}
+	}
+	return NULL;
+	/*int i, nD=-1, nU=ln, n=(nD+nU)>>1;
  while(i=cmpStr(tb+n,kArg))
 	{if(i>0)nU=n;else nD=n;
 	 n=(nD+nU)>>1;
-	 if(n==nD)return NULL;
+	 if(n==nD)
+		 return NULL;
 	}
  return &tb[n];
+ */
 }
 // пор≥вн€нн€ р€дк≥в
 int cmpStr(enum tokType s1[3], enum tokType s2[3])
@@ -59,121 +70,184 @@ void prDtLst(struct lxNode * nd)
 	 convNum(nd); //nInCr++;//,	enum ltrTypeS ltrCls[256]);
 	}
 }
+void error(struct lxNode * nd) {
+	printf("Error at x = %d y = %d \n",nd->x, nd->y);
+	system("pause");
+	exit(1);
+}
 enum datType //int 
-SmAnDcl(int tpCod, struct lxNode * nd)
-{if(nd->ndOp==_comma)
-	{SmAnDcl(tpCod,nd->prvNd);
-	 SmAnDcl(tpCod,nd->pstNd);
+SmAnDcl(int tpCod, struct lxNode * nd){
+	if(nd->ndOp==_comma)
+	{
+		SmAnDcl(tpCod,nd->prvNd);
+		SmAnDcl(tpCod,nd->pstNd);
 	}else if(nd->ndOp==_ass)
-	{SmAnDcl(tpCod,nd->prvNd);
+	{
+		SmAnDcl(tpCod,nd->prvNd);
 		if(nd->pstNd->ndOp==_srcn)
-		{nd->pstNd->dataType=tpLx[nd->pstNd->dataType];
-		 convNum(nd->pstNd); //nInCr++;//,	enum ltrTypeS ltrCls[256]);
-//		 nd->pstNd->resLength=lnCod[nd->pstNd->dataType];
-	}else if(nd->pstNd->ndOp==_tdbz)
-		{prDtLst(nd->pstNd->pstNd);}	
+		{
+			nd->pstNd->dataType=tpLx[nd->pstNd->dataType];
+			convNum(nd->pstNd); //nInCr++;//,	enum ltrTypeS ltrCls[256]);
+								//		 nd->pstNd->resLength=lnCod[nd->pstNd->dataType];
+		}else if(nd->pstNd->ndOp==_tdbz)
+		{
+			prDtLst(nd->pstNd->pstNd);
+		}	
 	}else if(nd->ndOp==_refU)//_mul)//унарна *
-	{if(nd->prnNd)SmAnDcl(tpCod+cdPtr,nd->pstNd);
+	{
+		if(nd->prnNd)SmAnDcl(tpCod+cdPtr,nd->pstNd);
 	}else if(nd->ndOp==_ixbz)
-	{SmAnDcl((tpCod+cdPtr)|cdArr,nd->prvNd);
-	 if(nd->pstNd->ndOp==_srcn)
-		{nd->pstNd->dataType=_ui;
-		 convNum(nd->pstNd); //nInCr++;//,	enum ltrTypeS ltrCls[256]);
-//		 nd->pstNd->resLength=lnCod[nd->pstNd->dataType];
-	 }
+	{
+		SmAnDcl((tpCod+cdPtr)|cdArr,nd->prvNd);
+		if(nd->pstNd->ndOp==_srcn)
+		{
+			nd->pstNd->dataType=_ui;
+			convNum(nd->pstNd); //nInCr++;//,	enum ltrTypeS ltrCls[256]);
+								//		 nd->pstNd->resLength=lnCod[nd->pstNd->dataType];
+		}
 //	 SmAnDcl(_ui,nd->pstNd);
 		nd->dataType=tpCod;
 		nd->resLength=lnCod[tpCod&0x7FF];
 	}else if(nd->ndOp==_nam)
-	{nd->dataType=tpCod;
-	 if(tpCod&msPtr)nd->resLength=lnFPtr;
-	 else nd->resLength=lnCod[tpCod&0x7fff];
+	{
+		nd->dataType=tpCod;
+		if(tpCod&msPtr)
+			nd->resLength=lnFPtr;
+		else 
+			nd->resLength=lnCod[tpCod&0x7fff];
 	}
- return (enum datType)tpCod;
+	return (enum datType)tpCod;
 }
 //enum datType
 int SmAnlzr(struct lxNode * nd,	// покажчик на початок масиву вузл≥в 
  		  int nR)	// номер кореневого вузла
 {//enum datType 
- int tPrv, tPst; 	// типи вузл≥в попередника та наступника
- int lnPrv, lnPst;	// довжини попередника та наступника
- char *name;		// робочий покажчик на ≥'м€ 
- struct recrdTPD*pRc;
- struct indStrUS *pRtNdx;// робочий покажчик вузла дв≥йкового дерева ≥мен
- if(nd->ndOp>=_void&&nd->ndOp<=_string)
-	{lPrv[0]=nd->ndOp;
-	 if(nd->prvNd/*&&nd->prvNd->ndOp<=_const*/)// €кщо не одне слово визначаЇ тип
-	 {lPrv[1]=nd->prvNd->ndOp;
-	  if(nd->prvNd->prvNd)//€кщо не два слова задають тип
-		  lPrv[2]=nd->prvNd->prvNd->ndOp;
-	  else lPrv[2]=_void;
-	 }
-	 else {lPrv[1]=_void; lPrv[2]=_void;}
-	 pRc=selBin(lPrv, tpTbl, 126);//пошук складеного типа
-	 if(pRc)	// €кщо тип ≥снуЇ
-		{tPrv=pRc->dTp;
-		 lnPrv=pRc->ln;
-		 if(nd->ndOp>=_enum&&nd->ndOp<=_union)// €кщо тип визначено користувачем
-		 {nd->prvNd->dataType=nd->ndOp;
-		  tPrv=(enum datType)(tPrv+(++nbBlk));
-		 }
+	int tPrv, tPst; 	// типи вузл≥в попередника та наступника
+	int lnPrv, lnPst;	// довжини попередника та наступника
+	char *name;		// робочий покажчик на ≥'м€ 
+	struct recrdTPD*pRc;
+	struct indStrUS *pRtNdx;// робочий покажчик вузла дв≥йкового дерева ≥мен
+	if(nd->ndOp>=_void&&nd->ndOp<=_string){
+		lPrv[0]=nd->ndOp;
+		if(nd->prvNd/*&&nd->prvNd->ndOp<=_const*/)// €кщо не одне слово визначаЇ тип
+		{
+			lPrv[1]=nd->prvNd->ndOp;
+			if(nd->prvNd->prvNd)//€кщо не два слова задають тип
+				lPrv[2]=nd->prvNd->prvNd->ndOp;
+			else lPrv[2]=_void;
+		}
+		else {lPrv[1]=_void; lPrv[2]=_void;}
+		pRc=selBin(lPrv, tpTbl, 126);//пошук складеного типа
+		if(pRc)	// €кщо тип ≥снуЇ
+		{
+			tPrv=pRc->dTp;
+			lnPrv=pRc->ln;
+			if(nd->ndOp>=_enum&&nd->ndOp<=_union)// €кщо тип визначено користувачем
+			{
+				nd->prvNd->dataType=nd->ndOp;
+				tPrv=(enum datType)(tPrv+(++nbBlk));
+			}
 //		 if(nd->ndOp==_enum)
-	 }
-	 SmAnDcl(tPrv,nd->pstNd);// визначити тип
- }
- else if(nd->ndOp==_nam)//€кщо терм≥нал-≥м'€
- {pRtNdx=selBTr(nd,ndxNds);//пошук ≥мен≥
- // €кщо не знайдено - неописане ≥м'€            !!!!!!!!!!!!!
-	name=(char*)pRtNdx->pKyStr->prvNd;
-/*	nd->pstNd=pRtNdx->pKyStr->pstNd;*/
-	nd->dataType=tPrv=(enum datType)pRtNdx->pKyStr->dataType;
-	nd->resLength=(int)pRtNdx->pKyStr->resLength;
- }
- else if(nd->ndOp==_srcn)//€кщо терм≥нал-константа
- {nd->dataType=tpLx[nd->dataType];
-  tPrv=(enum datType)nd->dataType;
-  convNum(nd/*->pstNd*/); //перетворенн€ константи на внутр≥шню
-//nInCr++;//,	enum ltrTypeS ltrCls[256]);
-//  nd->resLength=lnCod[tPrv];
- }
- else{if(nd->ndOp==_remL)return _v;
-	 if(nd->prvNd&&nd->ndOp!=_nam&&nd->ndOp!=_srcn)
-	 {if(nd->ndOp!=_brkz&&nd->prnNd)
-		{tPrv=SmAnlzr(nd->prvNd,nR);
-		 lnPrv=nd->prvNd->resLength;}
-	  }else{ftImp.oprd1=tPrv=_v;ftImp.ln1=0;}
-	  if(nd->pstNd&&nd->ndOp!=_nam&&nd->ndOp!=_srcn)
-		{tPst=SmAnlzr(nd->pstNd,nR);		 
-		 lnPst=nd->pstNd->resLength;}
-	  else{ftImp.oprd2=tPst=_v;ftImp.ln2=0;}
-	if(nd->ndOp==_EOS)
-		 {nd->dataType=_v; nd->resLength=0;
-	}else if(nd->ndOp==_brkz)
-	{if(nd->prvNd==0)
-	{nd->dataType=nd->pstNd->dataType; nd->resLength=nd->pstNd->resLength;
-	tPrv=(enum datType)nd->dataType;}
-	 else 
-	 {nd->dataType=nd->prvNd->dataType;nd->resLength=nd->prvNd->resLength;
-	  if(nd->prvNd&&nd->prvNd->ndOp==_refU)
-	  {tPrv=tPst-cdPtr; nd->dataType=tPrv;
-	   if(tPrv>=cdPtr)nd->resLength=32;
-	   else nd->resLength=lnCod[tPrv&0x7FF];
-	  }
-		  else tPrv=(enum datType)nd->dataType;}
+		}
+		SmAnDcl(tPrv,nd->pstNd);// визначити тип
 	}
-	 else
-	 {ftImp.oprd1=tPrv&0xffff7fff;
-	  if(ftImp.oprtn>=_asOr&&ftImp.oprtn<=_ass)tPrv&=0xfff7ffff;
-		if(tPrv!=_v)ftImp.ln1=lnPrv;else ftImp.ln1=lnPrv=0;
-		ftImp.oprd2=tPst&0xffff7fff; 
-		if(tPst!=_v)ftImp.ln2=lnPst;else ftImp.ln2=lnPst=0;
-		ftImp.oprtn=nd->ndOp;
-		struct recrdSMA*
-			pftImp = selBin(&ftImp, ftTbl, 361);
-		if(pftImp)
-		 {nd->dataType=pftImp->res;tPrv=(enum datType)pftImp->res;
-		  nd->resLength=pftImp->lnRes;
-	}}
- }
- return tPrv;
+	else if(nd->ndOp==_nam)//€кщо терм≥нал-≥м'€
+	{
+		pRtNdx=selBTr(nd,ndxNds);//пошук ≥мен≥
+							  // €кщо не знайдено - неописане ≥м'€            !!!!!!!!!!!!!
+		if (!pRtNdx) {
+			printf("\nUndeclared identifier!\n");
+			error(nd);
+		}
+		name=(char*)pRtNdx->pKyStr->prvNd;
+		/*	nd->pstNd=pRtNdx->pKyStr->pstNd;*/
+		nd->dataType=tPrv=(enum datType)pRtNdx->pKyStr->dataType;
+		nd->resLength=(int)pRtNdx->pKyStr->resLength;
+	}
+	else if(nd->ndOp==_srcn)//€кщо терм≥нал-константа
+	{
+		nd->dataType=tpLx[nd->dataType];
+		tPrv=(enum datType)nd->dataType;
+		convNum(nd/*->pstNd*/); //перетворенн€ константи на внутр≥шню
+								//nInCr++;//,	enum ltrTypeS ltrCls[256]);
+								//  nd->resLength=lnCod[tPrv];
+	}
+	else{
+		if(nd->ndOp==_remL)
+			return _v;
+		if(nd->prvNd&&nd->ndOp!=_nam&&nd->ndOp!=_srcn)
+		{
+			if(nd->ndOp!=_brkz&&nd->prnNd)
+			{
+				tPrv=SmAnlzr(nd->prvNd,nR);
+				lnPrv=nd->prvNd->resLength;
+			}
+		}else{
+			ftImp.oprd1=tPrv=_v;ftImp.ln1=0;
+		}
+		if(nd->pstNd&&nd->ndOp!=_nam&&nd->ndOp!=_srcn)
+		{
+			tPst=SmAnlzr(nd->pstNd,nR);
+			lnPst=nd->pstNd->resLength;
+		}
+		else{
+			ftImp.oprd2=tPst=_v;ftImp.ln2=0;
+		}
+		if(nd->ndOp==_EOS)
+		{
+			nd->dataType=_v; nd->resLength=0;
+		}else if(nd->ndOp==_brkz)
+		{
+			if(nd->prvNd==0)
+			{
+				nd->dataType=nd->pstNd->dataType;
+				nd->resLength=nd->pstNd->resLength;
+				tPrv=(enum datType)nd->dataType;
+			}
+			else 
+			{
+				nd->dataType=nd->prvNd->dataType;
+				nd->resLength=nd->prvNd->resLength;
+				if(nd->prvNd&&nd->prvNd->ndOp==_refU)
+				{
+					tPrv=tPst-cdPtr;
+					nd->dataType=tPrv;
+					if(tPrv>=cdPtr)
+						nd->resLength=32;
+					else 
+						nd->resLength=lnCod[tPrv&0x7FF];
+				}
+				else 
+					tPrv=(enum datType)nd->dataType;
+			}
+		}
+		else
+		{
+			ftImp.oprd1=tPrv&0xffff7fff;
+			if(ftImp.oprtn>=_asOr&&ftImp.oprtn<=_ass)
+				tPrv&=0xfff7ffff;
+			if(tPrv!=_v)
+				ftImp.ln1=lnPrv;
+			else 
+				ftImp.ln1=lnPrv=0;
+			ftImp.oprd2=tPst&0xffff7fff; 
+			if(tPst!=_v)
+				ftImp.ln2=lnPst;
+			else 
+				ftImp.ln2=lnPst=0;
+			ftImp.oprtn=nd->ndOp;
+			struct recrdSMA*pftImp = selBin(&ftImp, ftTbl, 361);
+			if(pftImp)
+			{
+				nd->dataType=pftImp->res;
+				tPrv=(enum datType)pftImp->res;
+				nd->resLength=pftImp->lnRes;
+			}
+			else {
+				printf("\nCheck types!\n");
+				error(nd);
+			}
+		}
+	}
+	return tPrv;
 }

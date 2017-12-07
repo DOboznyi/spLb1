@@ -11,6 +11,7 @@
 #include "seman.h"
 #include <stdio.h>
 #include <string.h>
+#include<iostream>
 
 extern struct recrdKWD tablKWD[];
 extern struct lxNode nodes[MAX_NODES]; // масив приймач вузлів дерева
@@ -51,7 +52,8 @@ do{//np=nn;
 	printf("\n");
 	nr=prCmpr(nodes,nn,nr);// компресія для скорочення графа
 	SmAnlzr(nodes+nr,nr);
-	prLxTxt(nodes+nr);
-	printf("\n");
+	//prLxTxt(nodes+nr);
+	printf("Analyse completed\n");
+	system("pause");
 	return 0;
 }
